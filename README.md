@@ -50,5 +50,13 @@ We put username, email, full name and groups in userdata. Authorized keys are st
       }
   }
 
+This userdata points to the bucket keys.30mhz.com, and expects an object with the name `jasper@9apps.net`, for the key of the user `jasper`.
+
 ## Install
 
+  curl https://raw.github.com/truthtrap/ostiary/master/users > /etc/init.d/users
+  chmod 755 /etc/init.d/users
+  chkconfig --add users
+  chkconfig users on
+
+This is it. All that is required now is a bucket of keys, augmented userdata, and the privilege to get the key objects from the bucket. (We often use IAM roles for that.)
