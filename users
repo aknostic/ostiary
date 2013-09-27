@@ -1,0 +1,129 @@
+#!/bin/bash
+#
+#        /etc/rc.d/init.d/users
+#
+#        adding/deleting (disabling) users
+#
+# chkconfig: 23456 99 01
+# description: adding/deleting (disabling) users
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+manage=$(cat<<EOF
+import sys
+import os
+import pwd
+import json
+import boto
+
+s3 = boto.connect_s3()
+keys = s3.get_bucket('keys.30mhz.com', validate=False)
+key = boto.s3.key.Key(keys)
+
+userdata = json.loads(boto.utils.get_instance_userdata())
+
+# we always succeed when there is nothing to do
+if not ('security' in userdata and 'users' in userdata['security']):
+	exit(0)
+
+if "provision" == sys.argv[1]:
+	for username in userdata['security']['users']:
+		user = userdata['security']['users'][username]
+
+		sys.stdout.write(" {0}".format(username))
+		os.system("/usr/sbin/adduser -c \"{0}\" -G {1} {2}".format(
+											user['comment'],
+											",".join(user['groups']),
+											username))
+
+		key.key = user['email']
+		os.system("/bin/mkdir --mode=0755 -p /home/{0}/.ssh".format(username))
+		key.get_contents_to_filename(
+							"/home/{0}/.ssh/authorized_keys".format(username))
+		os.system("chown -R {0}.{0} /home/{0}".format(username))
+elif "remove" == sys.argv[1]:
+	for username in userdata['security']['users']:
+		user = userdata['security']['users'][username]
+
+		sys.stdout.write(" {0}".format(username))
+		os.system("/usr/sbin/userdel -fr {0}".format(username))
+elif "update" == sys.argv[1]:
+	for username in userdata['security']['users']:
+		user = userdata['security']['users'][username]
+
+		sys.stdout.write(" {0}".format(username))
+
+		key.key = user['email']
+		# also delete the file when it is gone
+		try:
+			key.exists()
+			key.get_contents_to_filename(
+							"/home/{0}/.ssh/authorized_keys".format(username))
+		except:
+			os.remove("/home/{0}/.ssh/authorized_keys".format(username))
+
+		os.system("chown -R {0}.{0} /home/{0}".format(username))
+else:
+	pass
+
+EOF
+)
+
+service=users
+
+# Wait until networking is up on the EC2 instance.
+logger="logger -t $prog"
+perl -MIO::Socket::INET -e '
+ until(new IO::Socket::INET("169.254.169.254:80")){print"...";sleep 1}
+ ' | $logger
+
+start() {
+    echo -n "Provisioning ${service}: "
+
+	python -c "${manage}" provision
+    provisioned=$?
+
+    touch /var/lock/subsys/${service}
+    return ${provisioned}
+}        
+
+stop() {
+    echo -n "Removing ${service}: "
+
+	python -c "${manage}" remove
+    remove=$?
+
+    rm -f /var/lock/subsys/${service}
+    return ${removed}
+}
+
+restart() {
+    echo -n "Updating ${service}: "
+
+	python -c "${manage}" update
+    updated=$?
+
+    return ${updated}
+}
+
+case "$1" in
+    start)
+        start
+		echo
+        ;;
+    stop)
+        stop
+		echo
+        ;;
+    restart)
+        restart
+		echo
+        ;;
+    *)
+        echo "Usage: ${service} {start|stop|restart}"
+        exit 1
+        ;;
+esac
+exit $?
