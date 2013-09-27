@@ -4,25 +4,18 @@ Wherever exclusivity is required, it has to be enforced. Evidently, this also ho
 
 AWS has IAM, for policies on AWS' services and assets. They also offer keypairs, which are given to launching instances, and give anonymous access to instances. We require a bit more personalized implementation of keypairs. (Paper trail and all that...)
 
-## Requirements
+## Install
 
-We have three different use-cases
-1. adding a user
-2. updating a user
-3. deleting/disabling a user
+    curl https://raw.github.com/truthtrap/ostiary/master/users > /etc/init.d/users
+    chmod 755 /etc/init.d/users
+    chkconfig --add users
+    chkconfig users on
 
-Adding a user is usually not a matter of great rush. It is, however, a cumbersome exercise to add a user to all different AMIs in a large environment. It might take several hours to update AMIs, test them, and rotate running instances. So, adding users can be a bit cumbersome, but should not require creating new AMIs.
+This is it. All that is required now is a bucket of keys, augmented userdata, and the privilege to get the key objects from the bucket. (We often use IAM roles for that.)
 
-Updating and deleting/disabling a user is often sensitive. If someone is fired, or leaves disgruntled, you would want to deny access as soon as possible. And, if a laptop is stolen, changing public keys is also something you would want to do as soon as possible.
+## Userdata
 
-User accounts on instances in most systems are only used for (administering) access. Keeping personal files for long times is not required. The only things we need to know about a user is
-* username
-* email
-* full name (comment)
-* groups
-* authorized keys
-
-We put username, email, full name and groups in userdata. Authorized keys are stored in S3, in objects with the email as their key name. Launching an instance with the following as userdata will create users
+Launching an instance with the following as userdata will create users
 
     {
         "persistence": {
@@ -52,11 +45,22 @@ We put username, email, full name and groups in userdata. Authorized keys are st
 
 This userdata points to the bucket keys.30mhz.com, and expects an object with the name `jasper@9apps.net`, for the key of the user `jasper`.
 
-## Install
+## Requirements
 
-    curl https://raw.github.com/truthtrap/ostiary/master/users > /etc/init.d/users
-    chmod 755 /etc/init.d/users
-    chkconfig --add users
-    chkconfig users on
+We have three different use-cases
+1. adding a user
+2. updating a user
+3. deleting/disabling a user
 
-This is it. All that is required now is a bucket of keys, augmented userdata, and the privilege to get the key objects from the bucket. (We often use IAM roles for that.)
+Adding a user is usually not a matter of great rush. It is, however, a cumbersome exercise to add a user to all different AMIs in a large environment. It might take several hours to update AMIs, test them, and rotate running instances. So, adding users can be a bit cumbersome, but should not require creating new AMIs.
+
+Updating and deleting/disabling a user is often sensitive. If someone is fired, or leaves disgruntled, you would want to deny access as soon as possible. And, if a laptop is stolen, changing public keys is also something you would want to do as soon as possible.
+
+User accounts on instances in most systems are only used for (administering) access. Keeping personal files for long times is not required. The only things we need to know about a user is
+* username
+* email
+* full name (comment)
+* groups
+* authorized keys
+
+We put username, email, full name and groups in userdata. Authorized keys are stored in S3, in objects with the email as their key name.
