@@ -24,39 +24,39 @@ User accounts on instances in most systems are only used for (administering) acc
 
 We put username, email, full name and groups in userdata. Authorized keys are stored in S3, in objects with the email as their key name. Launching an instance with the following as userdata will create users
 
-  {
-      "persistence": {
-          "type": "raid",
-          "count" : 2,
-          "size": "10"
-      },
-      "backup" : {
-          "prefix" : "logging-30mhz-com",
-          "bucket" : "elasticsearch.30mhz.com"
-      },
-      "security" : {
-          "bucket" : "keys.30mhz.com",
-          "users" : {
-              "jasper" : { "groups" : [ "wheel" ], "email" : "jasper@9apps.net", "comment" : "Jasper Geurtsen" },
-              "flavia" : { "groups" : [ "wheel" ], "email" : "flavia@9apps.net", "comment" : "Flavia Paganelli" },
-              "pimderneden" : { "groups" : [ "wheel" ], "email" : "pim@9apps.net", "comment" : "Pim Derneden" },
-              "jurg" : { "groups" : [ "wheel" ], "email" : "jurg@9apps.net", "comment" : "Jurg van Vliet" }
-          }
-      },
-      "monit": {
-          "to": "30mhz@9apps.net",
-          "domain": "30mhz.com",
-          "system": "logging.elasticsearch.30mhz.com"
-      }
-  }
+    {
+        "persistence": {
+            "type": "raid",
+            "count" : 2,
+            "size": "10"
+        },
+        "backup" : {
+            "prefix" : "logging-30mhz-com",
+            "bucket" : "elasticsearch.30mhz.com"
+        },
+        "security" : {
+            "bucket" : "keys.30mhz.com",
+            "users" : {
+                "jasper" : { "groups" : [ "wheel" ], "email" : "jasper@9apps.net", "comment" : "Jasper Geurtsen" },
+                "flavia" : { "groups" : [ "wheel" ], "email" : "flavia@9apps.net", "comment" : "Flavia Paganelli" },
+                "pimderneden" : { "groups" : [ "wheel" ], "email" : "pim@9apps.net", "comment" : "Pim Derneden" },
+                "jurg" : { "groups" : [ "wheel" ], "email" : "jurg@9apps.net", "comment" : "Jurg van Vliet" }
+            }
+        },
+        "monit": {
+            "to": "30mhz@9apps.net",
+            "domain": "30mhz.com",
+            "system": "logging.elasticsearch.30mhz.com"
+        }
+    }
 
 This userdata points to the bucket keys.30mhz.com, and expects an object with the name `jasper@9apps.net`, for the key of the user `jasper`.
 
 ## Install
 
-  curl https://raw.github.com/truthtrap/ostiary/master/users > /etc/init.d/users
-  chmod 755 /etc/init.d/users
-  chkconfig --add users
-  chkconfig users on
+    curl https://raw.github.com/truthtrap/ostiary/master/users > /etc/init.d/users
+    chmod 755 /etc/init.d/users
+    chkconfig --add users
+    chkconfig users on
 
 This is it. All that is required now is a bucket of keys, augmented userdata, and the privilege to get the key objects from the bucket. (We often use IAM roles for that.)
