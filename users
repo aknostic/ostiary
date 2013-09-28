@@ -18,15 +18,15 @@ import pwd
 import json
 import boto
 
-s3 = boto.connect_s3()
-keys = s3.get_bucket('keys.30mhz.com', validate=False)
-key = boto.s3.key.Key(keys)
-
 userdata = json.loads(boto.utils.get_instance_userdata())
 
 # we always succeed when there is nothing to do
 if not ('security' in userdata and 'users' in userdata['security']):
 	exit(0)
+
+s3 = boto.connect_s3()
+keys = s3.get_bucket(userdata['security']['bucket'], validate=False)
+key = boto.s3.key.Key(keys)
 
 if "provision" == sys.argv[1]:
 	for username in userdata['security']['users']:
