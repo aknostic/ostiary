@@ -17,6 +17,7 @@ import os
 import pwd
 import json
 import boto
+import utils
 
 userdata = json.loads(boto.utils.get_instance_userdata())
 

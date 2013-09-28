@@ -6,7 +6,7 @@ AWS has IAM, for policies on AWS' services and assets. They also offer keypairs,
 
 ## Install
 
-    curl https://raw.github.com/truthtrap/ostiary/master/users > /etc/init.d/users
+    curl https://raw.github.com/9apps/ostiary/master/users > /etc/init.d/users
     chmod 755 /etc/init.d/users
     chkconfig --add users
     chkconfig users on
