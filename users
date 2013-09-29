@@ -4,7 +4,7 @@
 #
 #		adding/deleting (disabling) users
 #
-# chkconfig: 23456 99 01
+# chkconfig: 123456 99 01
 # description: adding/deleting (disabling) users
 #
 
