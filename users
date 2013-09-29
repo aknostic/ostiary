@@ -4,7 +4,7 @@
 #
 #		adding/deleting (disabling) users
 #
-# chkconfig: 123456 99 01
+# chkconfig: 123456 50 50
 # description: adding/deleting (disabling) users
 #
 
@@ -72,12 +72,18 @@ else:
 EOF
 )
 
+# for some reason it 'stops' on runlevel 6, so we ignore that one
+runlevel=`runlevel`
+if [ "3 6" == "${runlevel}" ]; then
+	exit 0
+fi
+
 service=users
 
 start() {
 	echo -n "Provisioning ${service}: "
 
-	python -c "${manage}" provision
+	/usr/bin/python -c "${manage}" provision
 	provisioned=$?
 
 	touch /var/lock/subsys/${service}
@@ -87,8 +93,8 @@ start() {
 stop() {
 	echo -n "Removing ${service}: "
 
-	python -c "${manage}" remove
-	remove=$?
+	/usr/bin/python -c "${manage}" remove
+	removed=$?
 
 	rm -f /var/lock/subsys/${service}
 	return ${removed}
@@ -97,7 +103,7 @@ stop() {
 restart() {
 	echo -n "Updating ${service}: "
 
-	python -c "${manage}" update
+	/usr/bin/python -c "${manage}" update
 	updated=$?
 
 	return ${updated}
@@ -105,14 +111,17 @@ restart() {
 
 case "$1" in
 	start)
+		echo "start"
 		start
 		echo
 		;;
 	stop)
+		echo "stop"
 		stop
 		echo
 		;;
 	restart)
+		echo "restart"
 		restart
 		echo
 		;;
