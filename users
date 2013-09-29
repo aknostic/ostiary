@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-#        /etc/rc.d/init.d/users
+#		/etc/rc.d/init.d/users
 #
-#        adding/deleting (disabling) users
+#		adding/deleting (disabling) users
 #
 # chkconfig: 23456 99 01
 # description: adding/deleting (disabling) users
@@ -74,57 +74,51 @@ EOF
 
 service=users
 
-# Wait until networking is up on the EC2 instance.
-logger="logger -t $prog"
-perl -MIO::Socket::INET -e '
- until(new IO::Socket::INET("169.254.169.254:80")){print"...";sleep 1}
- ' | $logger
-
 start() {
-    echo -n "Provisioning ${service}: "
+	echo -n "Provisioning ${service}: "
 
 	python -c "${manage}" provision
-    provisioned=$?
+	provisioned=$?
 
-    touch /var/lock/subsys/${service}
-    return ${provisioned}
-}        
+	touch /var/lock/subsys/${service}
+	return ${provisioned}
+}		
 
 stop() {
-    echo -n "Removing ${service}: "
+	echo -n "Removing ${service}: "
 
 	python -c "${manage}" remove
-    remove=$?
+	remove=$?
 
-    rm -f /var/lock/subsys/${service}
-    return ${removed}
+	rm -f /var/lock/subsys/${service}
+	return ${removed}
 }
 
 restart() {
-    echo -n "Updating ${service}: "
+	echo -n "Updating ${service}: "
 
 	python -c "${manage}" update
-    updated=$?
+	updated=$?
 
-    return ${updated}
+	return ${updated}
 }
 
 case "$1" in
-    start)
-        start
+	start)
+		start
 		echo
-        ;;
-    stop)
-        stop
+		;;
+	stop)
+		stop
 		echo
-        ;;
-    restart)
-        restart
+		;;
+	restart)
+		restart
 		echo
-        ;;
-    *)
-        echo "Usage: ${service} {start|stop|restart}"
-        exit 1
-        ;;
+		;;
+	*)
+		echo "Usage: ${service} {start|stop|restart}"
+		exit 1
+		;;
 esac
 exit $?
