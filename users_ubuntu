@@ -1,4 +1,6 @@
-N INIT INFO
+#!/bin/bash
+
+### BEGIN INIT INFO
 # Provides:          users 
 # Required-Start:    $remote_fs
 # Required-Stop:     $remote_fs
