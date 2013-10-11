@@ -101,7 +101,6 @@ stop() {
 
         /usr/bin/python -c "${manage}" remove
         removed=$?
-        /usr/bin/touch /root/stopiscalled
 
         return ${removed}
 }
