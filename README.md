@@ -4,12 +4,18 @@ Wherever exclusivity is required, it has to be enforced. Evidently, this also ho
 
 AWS has IAM, for policies on AWS' services and assets. They also offer keypairs, which are given to launching instances, and give anonymous access to instances. We require a bit more personalized implementation of keypairs. (Paper trail and all that...)
 
-## Install
+## Install aws ami (centos)
 
     curl https://raw.github.com/9apps/ostiary/master/users > /etc/init.d/users
     chmod 755 /etc/init.d/users
     chkconfig --add users
     chkconfig users on
+
+## Install on ubuntu
+
+    curl https://raw.github.com/9apps/ostiary/master/users_ubuntu > /etc/init.d/users_ubuntu
+    chmod 755 /etc/init.d/users_ubuntu
+    update-rc.d users start 01 1 2 3 4 5 6 . stop 98 0 .
 
 This is it. All that is required now is a bucket of keys, augmented userdata, and the privilege to get the key objects from the bucket. (We often use IAM roles for that.)
 

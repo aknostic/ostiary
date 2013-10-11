@@ -1,0 +1,138 @@
+N INIT INFO
+# Provides:          users 
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
+# Default-Start:     1 2 3 4 5 6
+# Default-Stop:      0 
+# Short-Description: adding/deleting (disabling) users 
+# Description:       # chkconfig: 123456 50 50
+### END INIT INFO
+
+# Source function library.
+. /lib/lsb/init-functions
+
+manage=$(cat<<EOF
+import sys
+import os
+import pwd
+import json
+import boto
+import boto.utils
+
+userdata = json.loads(boto.utils.get_instance_userdata())
+
+# we always succeed when there is nothing to do
+if not ('security' in userdata and 'users' in userdata['security']):
+        exit(0)
+
+s3 = boto.connect_s3()
+keys = s3.get_bucket(userdata['security']['bucket'], validate=False)
+key = boto.s3.key.Key(keys)
+
+if "provision" == sys.argv[1]:
+        for username in userdata['security']['users']:
+                user = userdata['security']['users'][username]
+
+                sys.stdout.write(" {0}".format(username))
+                os.system("/usr/sbin/adduser --disabled-password --gecos \"{0}\" {1}".format(
+                                                                                        user['comment'],
+                                                                                        username))
+
+                command = "adduser %s %s"%(username, ",".join(user['groups']))
+                os.system(command)
+
+                key.key = user['email']
+                os.system("/bin/mkdir --mode=0755 -p /home/{0}/.ssh".format(username))
+                key.get_contents_to_filename(
+                                                        "/home/{0}/.ssh/authorized_keys".format(username))
+                os.system("chown -R {0}.{0} /home/{0}".format(username))
+elif "remove" == sys.argv[1]:
+        for username in userdata['security']['users']:
+                user = userdata['security']['users'][username]
+
+                sys.stdout.write(" {0}".format(username))
+                os.system("deluser {0} --remove-home".format(username))
+elif "update" == sys.argv[1]:
+        for username in userdata['security']['users']:
+                user = userdata['security']['users'][username]
+
+                sys.stdout.write(" {0}".format(username))
+
+                key.key = user['email']
+                # also delete the file when it is gone
+                try:
+                        key.exists()
+                        key.get_contents_to_filename(
+                                                        "/home/{0}/.ssh/authorized_keys".format(username))
+                except:
+                        os.remove("/home/{0}/.ssh/authorized_keys".format(username))
+
+                os.system("chown -R {0}.{0} /home/{0}".format(username))
+else:
+        pass
+
+EOF
+)
+
+# for some reason it 'stops' on runlevel 6, so we ignore that one
+runlevel=`runlevel`
+# /usr/bin/touch /root/runlevelis"${runlevel}".txt
+
+if [ "2 6" == "${runlevel}" ]; then
+        # /usr/bin/touch /root/stopiscalled"${runlevel}".txt
+        exit 0
+fi
+
+service=users
+
+start() {
+        echo -n "Provisioning ${service}: "
+
+        /usr/bin/python -c "${manage}" provision
+        provisioned=$?
+
+        return ${provisioned}
+}
+
+stop() {
+        echo -n "Removing ${service}: "
+
+        /usr/bin/python -c "${manage}" remove
+        removed=$?
+        /usr/bin/touch /root/stopiscalled
+
+        return ${removed}
+}
+
+restart() {
+        echo -n "Updating ${service}: "
+
+        /usr/bin/python -c "${manage}" update
+        updated=$?
+
+        return ${updated}
+}
+
+case "$1" in
+        start)
+                echo "start"
+                start
+                echo
+                ;;
+        stop)
+                echo "stop"
+                stop
+                echo
+                ;;
+        restart)
+                echo "restart"
+                restart
+                echo
+                ;;
+        *)
+                echo "Usage: ${service} {start|stop|restart}"
+                exit 1
+                ;;
+esac
+exit $?
+
