@@ -60,6 +60,24 @@ We have three different use-cases
 
 Adding a user is usually not a matter of great rush. It is, however, a cumbersome exercise to add a user to all different AMIs in a large environment. It might take several hours to update AMIs, test them, and rotate running instances. So, adding users can be a bit cumbersome, but should not require creating new AMIs.
 
+	{
+	  "Version": "2012-10-17",
+	  "Statement": [
+		{
+		  "Action": [
+			"s3:GetObject",
+			"s3:GetObjectTorrent",
+			"s3:GetObjectVersion",
+			"s3:GetObjectVersionTorrent"
+		  ],
+		  "Resource": [
+			"arn:aws:s3:::keys.30mhz.com/*"
+		  ],
+		  "Effect": "Allow"
+		}
+	  ]
+	}
+
 Updating and deleting/disabling a user is often sensitive. If someone is fired, or leaves disgruntled, you would want to deny access as soon as possible. And, if a laptop is stolen, changing public keys is also something you would want to do as soon as possible.
 
 User accounts on instances in most systems are only used for (administering) access. Keeping personal files for long times is not required. The only things we need to know about a user is
