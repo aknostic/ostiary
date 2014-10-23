@@ -7,9 +7,9 @@ AWS has IAM, for policies on AWS' services and assets. They also offer keypairs,
 ## Install aws ami (centos)
 
     curl https://raw.githubusercontent.com/9apps/ostiary/master/users > /etc/init.d/users
-    chmod 755 /etc/init.d/users
     chkconfig --add users
-    chkconfig users on
+    chkconfig --level 23456 users on
+    chkconfig --level 01 users off
 
 ## Install on ubuntu
 

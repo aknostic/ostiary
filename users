@@ -4,7 +4,7 @@
 #
 #		adding/deleting (disabling) users
 #
-# chkconfig: 123456 50 50
+# chkconfig: 02345 30 80
 # description: adding/deleting (disabling) users
 #
 
