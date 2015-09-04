@@ -28,6 +28,7 @@ if not ('security' in userdata and 'users' in userdata['security']):
 s3 = boto.connect_s3()
 keys = s3.get_bucket(userdata['security']['bucket'], validate=False)
 key = boto.s3.key.Key(keys)
+privatekey = boto.s3.key.Key(keys)
 
 if "provision" == sys.argv[1]:
 	for username in userdata['security']['users']:
@@ -44,9 +45,8 @@ if "provision" == sys.argv[1]:
 		key.get_contents_to_filename(
 							"/home/{0}/.ssh/authorized_keys".format(username))
 		try:
-			key.key = "{0}.private".format(user['email'])
-			key.exists()
-			key.get_contents_to_filename(
+			privatekey.key = "{0}.private".format(user['email'])
+			privatekey.get_contents_to_filename(
 							"/home/{0}/.ssh/id_rsa".format(username))
 			os.system("chmod 600 /home/{0}/.ssh/id_rsa".format(username))
 		except:
@@ -75,9 +75,9 @@ elif "update" == sys.argv[1]:
 			os.remove("/home/{0}/.ssh/authorized_keys".format(username))
 
 		try:
-			key.key = "{0}.private".format(user['email'])
-			key.exists()
-			key.get_contents_to_filename(
+			privatekey.key = "{0}.private".format(user['email'])
+			privatekey.exists()
+			privatekey.get_contents_to_filename(
 							"/home/{0}/.ssh/id_rsa".format(username))
 			os.system("chmod 600 /home/{0}/.ssh/id_rsa".format(username))
 		except:
