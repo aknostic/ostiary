@@ -44,7 +44,7 @@ if "provision" == sys.argv[1]:
                 os.system(command)
 
                 key.key = user['email']
-                os.system("/bin/mkdir --mode=0755 -p /home/{0}/.ssh".format(username))
+                os.system("/bin/mkdir --mode=0700 -p /home/{0}/.ssh".format(username))
                 key.get_contents_to_filename(
                                                         "/home/{0}/.ssh/authorized_keys".format(username))
                 os.system("chown -R {0}.{0} /home/{0}".format(username))
