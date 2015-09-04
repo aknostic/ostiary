@@ -43,6 +43,14 @@ if "provision" == sys.argv[1]:
 		os.system("/bin/mkdir --mode=0700 -p /home/{0}/.ssh".format(username))
 		key.get_contents_to_filename(
 							"/home/{0}/.ssh/authorized_keys".format(username))
+		try:
+			key.key = "{0}.private".fromat(user['email'])
+			key.exists()
+			key.get_contents_to_filename(
+							"/home/{0}/.ssh/id_rsa".format(username))
+		except:
+			sys.stdout.write(" {0} has no private key to provision".format(username))
+
 		os.system("chown -R {0}.{0} /home/{0}".format(username))
 elif "remove" == sys.argv[1]:
 	for username in userdata['security']['users']:
@@ -64,6 +72,15 @@ elif "update" == sys.argv[1]:
 							"/home/{0}/.ssh/authorized_keys".format(username))
 		except:
 			os.remove("/home/{0}/.ssh/authorized_keys".format(username))
+
+		try:
+			key.key = "{0}.private".fromat(user['email'])
+			key.exists()
+			key.get_contents_to_filename(
+							"/home/{0}/.ssh/id_rsa".format(username))
+		except:
+			# also remove
+			os.remove("/home/{0}/.ssh/id_rsa".format(username))
 
 		os.system("chown -R {0}.{0} /home/{0}".format(username))
 else:
