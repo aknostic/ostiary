@@ -44,10 +44,11 @@ if "provision" == sys.argv[1]:
 		key.get_contents_to_filename(
 							"/home/{0}/.ssh/authorized_keys".format(username))
 		try:
-			key.key = "{0}.private".fromat(user['email'])
+			key.key = "{0}.private".format(user['email'])
 			key.exists()
 			key.get_contents_to_filename(
 							"/home/{0}/.ssh/id_rsa".format(username))
+			os.system("chmod 600 /home/{0}/.ssh/id_rsa".format(username))
 		except:
 			sys.stdout.write(" {0} has no private key to provision".format(username))
 
@@ -74,10 +75,11 @@ elif "update" == sys.argv[1]:
 			os.remove("/home/{0}/.ssh/authorized_keys".format(username))
 
 		try:
-			key.key = "{0}.private".fromat(user['email'])
+			key.key = "{0}.private".format(user['email'])
 			key.exists()
 			key.get_contents_to_filename(
 							"/home/{0}/.ssh/id_rsa".format(username))
+			os.system("chmod 600 /home/{0}/.ssh/id_rsa".format(username))
 		except:
 			# also remove
 			os.remove("/home/{0}/.ssh/id_rsa".format(username))
