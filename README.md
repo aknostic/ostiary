@@ -51,6 +51,9 @@ Launching an instance with the following as userdata will create users
 
 This userdata points to the bucket keys.30mhz.com, and expects an object with the name `jasper@9apps.net`, for the key of the user `jasper`.
 
+NOTE: for ubuntu, change in the userdata: <"groups" : [ "wheel" ]> into "groups" : [ "sudo" ]
+as Ubuntu has no wheel group!
+
 ## Requirements
 
 We have three different use-cases
