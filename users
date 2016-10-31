@@ -12,12 +12,13 @@
 . /etc/init.d/functions
 
 manage=$(cat<<EOF
-import sys
-import os
-import pwd
-import json
 import boto
 import boto.utils
+import json
+import os
+import pwd
+import ssl
+import sys
 
 userdata = json.loads(boto.utils.get_instance_userdata())
 
@@ -25,6 +26,11 @@ userdata = json.loads(boto.utils.get_instance_userdata())
 if not ('security' in userdata and 'users' in userdata['security']):
 	exit(0)
 
+# Buckets with a . in their name do not have
+# a valid ssl cert (*.s3.amazonaws.com)
+# Create ssl context that does not validate certificates
+if hasattr(ssl, '_create_unverified_context'):
+	ssl._create_default_https_context = ssl._create_unverified_context
 s3 = boto.connect_s3()
 keys = s3.get_bucket(userdata['security']['bucket'], validate=False)
 key = boto.s3.key.Key(keys)
