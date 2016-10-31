@@ -50,6 +50,7 @@ Launching an instance with the following as userdata will create users
     }
 
 This userdata points to the bucket keys.30mhz.com, and expects an object with the name `jasper@9apps.net`, for the key of the user `jasper`.
+If the bucket has an object with the name `jasper@9apps.net.private` this file will be installed as a private ssh key for the user `jasper`.
 
 NOTE: for ubuntu, change in the userdata: <"groups" : [ "wheel" ]> into <"groups" : [ "sudo" ]>
 as Ubuntu has no wheel group!
@@ -89,5 +90,6 @@ User accounts on instances in most systems are only used for (administering) acc
 * full name (comment)
 * groups
 * authorized keys
+* private key (optional)
 
-We put username, email, full name and groups in userdata. Authorized keys are stored in S3, in objects with the email as their key name.
+We put username, email, full name and groups in userdata. Authorized and private keys are stored in S3, in objects with the email as their key name.
